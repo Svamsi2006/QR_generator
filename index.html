@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Glassy QR Studio — Canva Code</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- QR Code Matrix Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <!-- jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --glass-bg: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.18);
+      --glass-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    html, body { height: 100%; }
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    /* Glassmorphism helpers */
+    .glass {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      box-shadow: var(--glass-shadow);
+    }
+    .glass-soft {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px) saturate(120%);
+      -webkit-backdrop-filter: blur(12px) saturate(120%);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    }
+    .btn {
+      transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease, filter .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .twinkle {
+      animation: twinkle 2.6s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 1 }
+      50% { opacity: .75 }
+    }
+    /* Toggle switch */
+    .switch { position: relative; width: 48px; height: 28px; }
+    .switch input { display: none; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25);
+      transition: .25s; border-radius: 9999px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .slider:before {
+      content:""; position: absolute; width: 22px; height: 22px; left: 3px; top: 50%;
+      transform: translateY(-50%); background: white; border-radius: 9999px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: .25s;
+    }
+    .switch input:checked + .slider { background: linear-gradient(135deg,#7c3aed,#06b6d4); }
+    .switch input:checked + .slider:before { transform: translate(20px,-50%); }
+    /* Range slider */
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none; height: 6px; border-radius: 9999px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.35), rgba(255,255,255,0.15));
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background: white; border: 2px solid rgba(0,0,0,0.08); box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+      cursor: pointer;
+    }
+    /* Focus ring */
+    .focus-ring:focus { outline: none; box-shadow: 0 0 0 3px rgba(124,58,237,0.45); }
+    /* High contrast */
+    .hc * { outline-offset: 2px !important }
+    /* Preview pan/zoom cursor */
+    .grabbable { cursor: grab; }
+    .grabbable:active { cursor: grabbing; }
+    /* Accessibility helper for offscreen */
+    .sr-only-focusable:focus { position: static !important; width: auto; height: auto; clip: auto; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white antialiased">
+  <a href="#main" class="sr-only sr-only-focusable">Skip to content</a>
+
+  <!-- Top Bar -->
+  <header class="sticky top-0 z-50">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-2xl glass flex items-center justify-center twinkle">
+          <!-- Simple QR-like icon -->
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            <g fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+              <rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/>
+              <rect x="3" y="13" width="8" height="8" rx="2"/><path d="M17 17h4M17 21h4M13 13h4v4"/>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight">Glassy QR Studio</h1>
+          <p class="text-xs text-slate-300">Create, style, track and share beautiful QR codes</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Theme -->
+        <label class="switch" aria-label="Toggle dark/light theme">
+          <input id="themeToggle" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+        <!-- High Contrast -->
+        <label class="switch" aria-label="Toggle high contrast">
+          <input id="hcToggle" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+        <!-- Upgrade -->
+        <button id="upgradeBtn" class="btn glass rounded-xl px-4 py-2 text-sm font-semibold hover:brightness-110 focus-ring">
+          Upgrade ✨
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main id="main" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-6">
+    <!-- Controls Column -->
+    <section aria-label="Settings" class="space-y-6">
+      <!-- Input -->
+      <div class="glass rounded-2xl p-5">
+        <h2 class="text-lg font-semibold mb-3 flex items-center gap-2">
+          <span>Content</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-white/10">Live</span>
+        </h2>
+        <form id="contentForm" class="space-y-3" autocomplete="off">
+          <label class="block text-sm mb-1" for="qrText">URL or Text</label>
+          <input id="qrText" class="w-full glass-soft rounded-xl px-4 py-2.5 focus-ring text-white placeholder-slate-400"
+                 type="text" placeholder="https://example.com or any text" required aria-required="true" />
+          <div class="flex items-center gap-3">
+            <label class="block text-sm" for="logoFile">Center Logo</label>
+            <input id="logoFile" class="flex-1 text-sm" type="file" accept="image/*" aria-label="Upload logo" />
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="clearLogo" class="btn glass-soft rounded-lg px-3 py-2 text-sm" type="button">Remove logo</button>
+            <label class="text-sm flex items-center gap-2">
+              Size
+              <input id="logoSize" type="range" min="6" max="40" value="20" class="w-40" />
+              <span id="logoSizeVal" class="text-xs text-slate-300 w-6 inline-block">20</span>%
+            </label>
+          </div>
+        </form>
+      </div>
+
+      <!-- Shapes -->
+      <div class="glass rounded-2xl p-5">
+        <h2 class="text-lg font-semibold mb-3">Shapes</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" role="group" aria-label="QR element shape">
+          <button data-shape="square" class="shape-btn btn glass-soft rounded-xl px-3 py-2">Square</button>
+          <button data-shape="rounded" class="shape-btn btn glass-soft rounded-xl px-3 py-2">Rounded</button>
+          <button data-shape="circle" class="shape-btn btn glass-soft rounded-xl px-3 py-2">Circle</button>
+          <button data-shape="hex" class="shape-btn btn glass-soft rounded-xl px-3 py-2">Hex</button>
+          <button data-shape="diamond" class="shape-btn btn glass-soft rounded-xl px-3 py-2">Diamond</button>
+          <button data-shape="heart" class="shape-btn btn glass-soft rounded-xl px-3 py-2">Heart</button>
+          <button data-shape="star" class="shape-btn btn glass-soft rounded-xl px-3 py-2">Star</button>
+          <button data-shape="custom" class="shape-btn btn glass-soft rounded-xl px-3 py-2">Custom</button>
+        </div>
+        <div id="customPathWrap" class="mt-3 hidden">
+          <label class="text-sm">Custom SVG path (normalized to module square)</label>
+          <input id="customPath" class="w-full glass-soft rounded-xl px-3 py-2 text-sm mt-1"
+                 placeholder="e.g. M0.1,0.5 L0.5,0.1 L0.9,0.5 L0.5,0.9 Z" />
+          <p class="text-xs text-slate-300 mt-1">Use coordinates between 0 and 1 for width/height of a module.</p>
+        </div>
+      </div>
+
+      <!-- Colors -->
+      <div class="glass rounded-2xl p-5 space-y-3">
+        <h2 class="text-lg font-semibold">Colors</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm">Foreground</label>
+            <input id="fgColor" type="color" class="w-full h-10 rounded-lg mt-1" value="#ffffff" />
+          </div>
+          <div>
+            <label class="text-sm">Background</label>
+            <input id="bgColor" type="color" class="w-full h-10 rounded-lg mt-1" value="#111827" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm">Eye/Markers</label>
+            <input id="eyeColor" type="color" class="w-full h-10 rounded-lg mt-1" value="#7c3aed" />
+          </div>
+          <div>
+            <label class="text-sm">Inner Patterns</label>
+            <input id="innerEyeColor" type="color" class="w-full h-10 rounded-lg mt-1" value="#06b6d4" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex items-center gap-2">
+            <input id="bgTransparent" type="checkbox" class="w-4 h-4" />
+            <label for="bgTransparent" class="text-sm">Transparent background</label>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="useGradient" type="checkbox" class="w-4 h-4" />
+            <label for="useGradient" class="text-sm">Gradient foreground</label>
+          </div>
+        </div>
+        <div id="gradientWrap" class="grid grid-cols-2 gap-3 hidden">
+          <div>
+            <label class="text-sm">Gradient A</label>
+            <input id="gradA" type="color" class="w-full h-10 rounded-lg mt-1" value="#a78bfa" />
+          </div>
+          <div>
+            <label class="text-sm">Gradient B</label>
+            <input id="gradB" type="color" class="w-full h-10 rounded-lg mt-1" value="#06b6d4" />
+          </div>
+        </div>
+      </div>
+
+      
+
+      <!-- Save / Projects / Presets -->
+      
+
+      <!-- Share / Embed -->
+      <div class="glass rounded-2xl p-5 space-y-3">
+        <h2 class="text-lg font-semibold">Share & Embed</h2>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="shareWhatsApp" class="btn glass-soft rounded-lg px-3 py-2 text-sm">WhatsApp</button>
+          <button id="shareEmail" class="btn glass-soft rounded-lg px-3 py-2 text-sm">Email</button>
+          <button id="shareSocial" class="btn glass-soft rounded-lg px-3 py-2 text-sm">Social</button>
+          <button id="copyEmbed" class="btn glass-soft rounded-lg px-3 py-2 text-sm">Copy embed</button>
+        </div>
+        <textarea id="embedOut" class="w-full glass-soft rounded-xl p-2 text-xs mt-2 h-20" readonly aria-label="Embed code output"></textarea>
+      </div>
+
+      <!-- Feedback -->
+      <div class="glass rounded-2xl p-5 space-y-3">
+        <h2 class="text-lg font-semibold">Feedback</h2>
+        <div class="flex items-center gap-2">
+          <label class="text-sm">Rate this studio</label>
+          <div id="rating" class="flex gap-1" role="radiogroup" aria-label="Rate 1 to 5">
+            <button class="star btn text-xl" aria-label="1 star">⭐</button>
+            <button class="star btn text-xl" aria-label="2 stars">⭐</button>
+            <button class="star btn text-xl" aria-label="3 stars">⭐</button>
+            <button class="star btn text-xl" aria-label="4 stars">⭐</button>
+            <button class="star btn text-xl" aria-label="5 stars">⭐</button>
+          </div>
+        </div>
+        <textarea id="feedback" class="w-full glass-soft rounded-xl p-2 text-sm" rows="3" placeholder="Tell us what to improve"></textarea>
+        <button id="sendFeedback" class="btn glass-soft rounded-lg px-3 py-2 text-sm">Send</button>
+        <p id="feedbackMsg" class="text-xs text-slate-300"></p>
+      </div>
+    </section>
+
+    <!-- Preview Column -->
+    <section aria-label="Preview and Actions" class="space-y-6">
+      <!-- Live Preview -->
+      <div class="relative glass rounded-3xl p-4 lg:p-6 overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none opacity-60" aria-hidden="true"
+             style="background: radial-gradient(1200px 600px at 110% -10%, rgba(124,58,237,0.22), transparent 60%),
+                            radial-gradient(900px 500px at -10% 110%, rgba(6,182,212,0.18), transparent 60%);"></div>
+        <div class="relative z-10 grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4">
+          <!-- Canvas -->
+          <div class="glass-soft rounded-2xl p-3">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <button id="zoomOut" class="btn glass-soft rounded-lg px-3 py-2 text-sm" aria-label="Zoom out">-</button>
+                <button id="zoomIn" class="btn glass-soft rounded-lg px-3 py-2 text-sm" aria-label="Zoom in">+</button>
+                <span id="zoomLabel" class="text-xs text-slate-300">100%</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-300">Pan</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              </div>
+            </div>
+            <div id="previewWrap" class="relative overflow-hidden rounded-2xl bg-black/20 grabbable" style="aspect-ratio: 1;">
+              <!-- SVG QR inject here -->
+            </div>
+          </div>
+          <!-- Actions -->
+          <div class="space-y-3">
+            <div class="glass-soft rounded-2xl p-4">
+              <h3 class="font-semibold mb-2">Download</h3>
+              <div class="grid grid-cols-3 gap-2">
+                <select id="dlFormat" class="glass-soft rounded-lg px-2 py-2 text-sm">
+                  <option value="png">PNG</option>
+                  <option value="svg">SVG</option>
+                  <option value="pdf">PDF</option>
+                </select>
+                <select id="dlScale" class="glass-soft rounded-lg px-2 py-2 text-sm">
+                  <option value="1">1x</option>
+                  <option value="2" selected>2x</option>
+                  <option value="4">4x</option>
+                  <option value="6">6x</option>
+                </select>
+                <button id="downloadBtn" class="btn glass rounded-lg px-3 py-2 text-sm">Download</button>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-white/10">
+          <h3 class="text-sm font-semibold mb-2">Cool QR styles</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="preset btn glass-soft rounded-lg px-2 py-2 text-xs" data-preset="neon">Neon</button>
+            <button class="preset btn glass-soft rounded-lg px-2 py-2 text-xs" data-preset="pastel">Pastel</button>
+            <button class="preset btn glass-soft rounded-lg px-2 py-2 text-xs" data-preset="mono">Mono</button>
+          </div>
+          
+        </div>
+        <p>.</p>
+        <div class="glass rounded-2xl p-5 space-y-3">
+        <h2 class="text-lg font-semibold">Effects</h2>
+        <label class="text-sm flex items-center gap-2">
+          Opacity
+          <input id="qrOpacity" type="range" min="40" max="100" value="100" class="w-40" />
+          <span id="qrOpacityVal" class="text-xs text-slate-300 w-8 inline-block">100</span>%
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex items-center gap-2">
+            <input id="dropShadow" type="checkbox" class="w-4 h-4" />
+            <label class="text-sm" for="dropShadow">Drop shadow</label>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="glow" type="checkbox" class="w-4 h-4" />
+            <label class="text-sm" for="glow">Glow</label>
+          </div>
+        </div>
+        <label class="text-sm flex items-center gap-2">
+          Border radius
+          <input id="qrRadius" type="range" min="0" max="24" value="12" class="w-40" />
+          <span id="qrRadiusVal" class="text-xs text-slate-300 w-6 inline-block">12</span>
+        </label>
+      </div>
+        
+          </div>
+
+          
+        </div>
+      </div>
+
+      
+      <!-- Info -->
+      <div class="glass rounded-2xl p-5">
+        <h2 class="font-semibold mb-2">Tips</h2>
+        <ul class="list-disc pl-5 text-sm text-slate-300 space-y-1">
+          <li>Use high contrast between foreground and background for scan reliability.</li>
+          <li>Logo should be simple; keep size between 12–30%.</li>
+          <li>Avoid over-rounding on dense codes; test on multiple devices.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Upgrade Modal (Demo) -->
+  <div id="upgradeModal" class="fixed inset-0 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative glass rounded-2xl p-6 max-w-lg w-full">
+      <h3 class="font-semibold text-xl mb-2">Upgrade to Pro (Demo)</h3>
+      <ul class="text-sm text-slate-300 list-disc pl-5 space-y-1">
+        <li>Higher resolutions and batch export</li>
+        <li>Advanced analytics with heatmaps</li>
+        <li>Team collaboration and templates</li>
+      </ul>
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="upgradeClose" class="btn glass-soft rounded-lg px-3 py-2">Close</button>
+        <button class="btn glass rounded-lg px-3 py-2">Start free trial</button>
+      </div>
+      <p class="text-[11px] text-slate-400 mt-2">Note: This is a demo modal; no payments are processed.</p>
+    </div>
+  </div>
+
+  <!-- Onboarding Modal -->
+  <div id="onboardModal" class="fixed inset-0 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative glass rounded-2xl p-6 max-w-xl w-full">
+      <h3 class="font-semibold text-xl mb-2">Welcome to Glassy QR Studio</h3>
+      <p class="text-sm text-slate-300">Type your link, pick a style, and download. Try zooming the preview and uploading a logo.</p>
+      <ul class="text-sm list-disc pl-5 text-slate-300 mt-3 space-y-1">
+        <li>Tracking links are simulated locally</li>
+        <li>Dynamic QR is a demo you can update later</li>
+        <li>Projects save in your browser</li>
+      </ul>
+      <div class="mt-4 flex justify-end">
+        <button id="onboardOk" class="btn glass rounded-lg px-4 py-2">Let’s go</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden a11y alerts -->
+  <div aria-live="polite" class="sr-only" id="ariaStatus"></div>
+
+  <script>
+  // State
+  const S = {
+    text: 'https://example.com',
+    shape: 'rounded',
+    customPath: '',
+    colors: {
+      fg: '#ffffff',
+      bg: '#111827',
+      eye: '#7c3aed',
+      innerEye: '#06b6d4',
+      gradient: false,
+      gradA: '#a78bfa',
+      gradB: '#06b6d4',
+      transparentBg: false,
+    },
+    effects: {
+      opacity: 1,
+      radius: 12,
+      dropShadow: false,
+      glow: false,
+    },
+    logo: {
+      dataURL: '',
+      sizePct: 20,
+    },
+    zoom: 1,
+    pan: { x: 0, y: 0 },
+    tracking: {
+      id: '',
+      clicks: 0,
+    },
+    theme: { dark: true, highContrast: false },
+    dynamic: { id: '', map: {} },
+  };
+
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const status = msg => { const el = $('#ariaStatus'); el.textContent = msg; };
+
+  // Elements
+  const qrText = $('#qrText');
+  const logoFile = $('#logoFile');
+  const clearLogo = $('#clearLogo');
+  const logoSize = $('#logoSize');
+  const logoSizeVal = $('#logoSizeVal');
+
+  const fgColor = $('#fgColor');
+  const bgColor = $('#bgColor');
+  const eyeColor = $('#eyeColor');
+  const innerEyeColor = $('#innerEyeColor');
+  const useGradient = $('#useGradient');
+  const gradA = $('#gradA');
+  const gradB = $('#gradB');
+  const gradientWrap = $('#gradientWrap');
+  const bgTransparent = $('#bgTransparent');
+
+  const qrOpacity = $('#qrOpacity');
+  const qrOpacityVal = $('#qrOpacityVal');
+  const qrRadius = $('#qrRadius');
+  const qrRadiusVal = $('#qrRadiusVal');
+  const dropShadow = $('#dropShadow');
+  const glow = $('#glow');
+
+  const previewWrap = $('#previewWrap');
+  const zoomIn = $('#zoomIn');
+  const zoomOut = $('#zoomOut');
+  const zoomLabel = $('#zoomLabel');
+
+  const dlFormat = $('#dlFormat');
+  const dlScale = $('#dlScale');
+  const downloadBtn = $('#downloadBtn');
+
+  const projectsSelect = $('#projectsSelect');
+  const projectName = $('#projectName');
+  const saveProjectBtn = $('#saveProjectBtn');
+  const loadProjectBtn = $('#loadProjectBtn');
+  const deleteProjectBtn = $('#deleteProjectBtn');
+
+  const presetBtns = $$('.preset');
+
+  const shareWhatsApp = $('#shareWhatsApp');
+  const shareEmail = $('#shareEmail');
+  const shareSocial = $('#shareSocial');
+  const copyEmbed = $('#copyEmbed');
+  const embedOut = $('#embedOut');
+
+  const rating = $('#rating');
+  const sendFeedback = $('#sendFeedback');
+  const feedback = $('#feedback');
+  const feedbackMsg = $('#feedbackMsg');
+
+  const upgradeBtn = $('#upgradeBtn');
+  const upgradeModal = $('#upgradeModal');
+  const upgradeClose = $('#upgradeClose');
+
+  const onboardModal = $('#onboardModal');
+  const onboardOk = $('#onboardOk');
+
+  const themeToggle = $('#themeToggle');
+  const hcToggle = $('#hcToggle');
+
+  // Helpers
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const uid = () => Math.random().toString(36).slice(2, 9);
+  const asDataURL = (svgEl) => {
+    const s = new XMLSerializer().serializeToString(svgEl);
+    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(s)));
+  };
+
+  // Storage keys
+  const LS = {
+    PROJECTS: 'qr_projects_v1',
+    FEEDBACK: 'qr_feedback_v1',
+    THEME: 'qr_theme_v1',
+    ONBOARDED: 'qr_onboarded_v1',
+  };
+
+  // Init
+  function init() {
+    // Theme restore
+    const t = JSON.parse(localStorage.getItem(LS.THEME) || '{"dark":true,"hc":false}');
+    S.theme.dark = !!t.dark;
+    S.theme.highContrast = !!t.hc;
+    themeToggle.checked = !S.theme.dark ? true : false; // toggle shows light when checked
+    hcToggle.checked = S.theme.highContrast;
+    applyTheme();
+
+    // Onboard
+    const seen = localStorage.getItem(LS.ONBOARDED);
+    if (!seen) showModal(onboardModal);
+
+    // Inputs defaults
+    qrText.value = S.text;
+    fgColor.value = S.colors.fg;
+    bgColor.value = S.colors.bg;
+    eyeColor.value = S.colors.eye;
+    innerEyeColor.value = S.colors.innerEye;
+    gradA.value = S.colors.gradA; gradB.value = S.colors.gradB;
+    bgTransparent.checked = S.colors.transparentBg;
+    useGradient.checked = S.colors.gradient;
+    gradientWrap.classList.toggle('hidden', !S.colors.gradient);
+    qrOpacity.value = 100; qrOpacityVal.textContent = '100';
+    qrRadius.value = S.effects.radius; qrRadiusVal.textContent = String(S.effects.radius);
+    dropShadow.checked = S.effects.dropShadow;
+    glow.checked = S.effects.glow;
+    logoSize.value = S.logo.sizePct; logoSizeVal.textContent = String(S.logo.sizePct);
+
+    // Projects
+    refreshProjects();
+
+    // Render
+    render();
+  }
+
+  // Theme
+  function applyTheme() {
+    document.documentElement.classList.toggle('hc', S.theme.highContrast);
+    if (S.theme.dark) {
+      document.body.classList.remove('bg-white', 'text-slate-900');
+      document.body.classList.add('text-white');
+    } else {
+      document.body.classList.add('bg-white', 'text-slate-900');
+    }
+    localStorage.setItem(LS.THEME, JSON.stringify({ dark: S.theme.dark, hc: S.theme.highContrast }));
+  }
+
+  // QR MATRIX + SVG RENDERER
+  function generateMatrix(text) {
+    const qr = qrcode(0, 'M'); // auto type, medium error correction
+    qr.addData(text || ' ');
+    qr.make();
+    const size = qr.getModuleCount();
+    const matrix = [];
+    for (let r=0;r<size;r++){
+      const row = [];
+      for (let c=0;c<size;c++){
+        row.push(qr.isDark(r,c) ? 1 : 0);
+      }
+      matrix.push(row);
+    }
+    return { matrix, size };
+  }
+
+  function isInFinder(r,c,size) {
+    const inTL = r<7 && c<7;
+    const inTR = r<7 && c>=size-7;
+    const inBL = r>=size-7 && c<7;
+    return inTL || inTR || inBL;
+  }
+
+  function shapePathForModule(shape, x, y, m, customPath) {
+    const s = 1; // module unit
+    if (shape === 'square' || shape === 'rounded') {
+      const rx = shape==='rounded'? 0.3 : 0;
+      return `<rect x="${x}" y="${y}" width="${s}" height="${s}" rx="${rx}"></rect>`;
+    }
+    if (shape === 'circle') {
+      return `<circle cx="${x+0.5}" cy="${y+0.5}" r="${0.5}"></circle>`;
+    }
+    if (shape === 'diamond') {
+      return `<polygon points="${x+0.5},${y} ${x+1},${y+0.5} ${x+0.5},${y+1} ${x},${y+0.5}"></polygon>`;
+    }
+    if (shape === 'hex') {
+      const cx=x+0.5, cy=y+0.5, r=0.5;
+      const pts = [];
+      for (let i=0;i<6;i++){
+        const a = Math.PI/3*i + Math.PI/6;
+        pts.push((cx+r*Math.cos(a))+","+(cy+r*Math.sin(a)));
+      }
+      return `<polygon points="${pts.join(' ')}"></polygon>`;
+    }
+    if (shape === 'heart') {
+      const px = x, py = y;
+      // simple heart path scaled to module
+      return `<path d="M ${px+0.5} ${py+0.85}
+        C ${px+0.2} ${py+0.65}, ${px+0.05} ${py+0.35}, ${px+0.3} ${py+0.2}
+        C ${px+0.5} ${py+0.05}, ${px+0.7} ${py+0.2}, ${px+0.5} ${py+0.35}
+        C ${px+0.3} ${py+0.2}, ${px+0.5} ${py+0.05}, ${px+0.7} ${py+0.2}
+        C ${px+0.95} ${py+0.35}, ${px+0.8} ${py+0.65}, ${px+0.5} ${py+0.85} Z"></path>`;
+    }
+    if (shape === 'star') {
+      const cx=x+0.5, cy=y+0.5, r1=0.5, r2=0.22;
+      let pts='';
+      for(let i=0;i<10;i++){
+        const a = Math.PI/5*i - Math.PI/2;
+        const r = i%2===0 ? r1 : r2;
+        pts += (cx+r*Math.cos(a))+','+(cy+r*Math.sin(a))+' ';
+      }
+      return `<polygon points="${pts.trim()}"></polygon>`;
+    }
+    if (shape === 'custom' && customPath) {
+      const d = customPath.replace(/\s+/g,' ');
+      // scale 0..1 path into module square
+      return `<path transform="translate(${x},${y}) scale(1,1)" d="${d}"></path>`;
+    }
+    return `<rect x="${x}" y="${y}" width="1" height="1"></rect>`;
+  }
+
+  function render() {
+    const { matrix, size } = generateMatrix(S.text);
+    const pad = 4; // quiet zone
+    const total = size + pad*2;
+    const moduleSize = 16; // base for preview scaling; downloadable scales later
+    const viewSize = total; // viewBox units in modules
+
+    // Build SVG
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${viewSize} ${viewSize}`);
+    svg.setAttribute('role','img');
+    svg.setAttribute('aria-label','QR code preview');
+    svg.style.width = '100%';
+    svg.style.height = '100%';
+    svg.style.borderRadius = S.effects.radius + 'px';
+    svg.style.opacity = S.effects.opacity.toFixed(2);
+
+    // Defs
+    const defs = document.createElementNS(svgNS, 'defs');
+
+    // Gradient
+    if (S.colors.gradient) {
+      const lg = document.createElementNS(svgNS, 'linearGradient');
+      lg.setAttribute('id','fgGrad');
+      lg.setAttribute('x1','0%'); lg.setAttribute('x2','100%'); lg.setAttribute('y1','0%'); lg.setAttribute('y2','100%');
+      const s1 = document.createElementNS(svgNS,'stop'); s1.setAttribute('offset','0%'); s1.setAttribute('stop-color', S.colors.gradA);
+      const s2 = document.createElementNS(svgNS,'stop'); s2.setAttribute('offset','100%'); s2.setAttribute('stop-color', S.colors.gradB);
+      lg.appendChild(s1); lg.appendChild(s2);
+      defs.appendChild(lg);
+    }
+
+    // Filters
+    if (S.effects.dropShadow || S.effects.glow) {
+      const flt = document.createElementNS(svgNS,'filter'); flt.setAttribute('id','fx');
+      flt.setAttribute('x','-50%'); flt.setAttribute('y','-50%'); flt.setAttribute('width','200%'); flt.setAttribute('height','200%');
+      const fe = document.createElementNS(svgNS,'feDropShadow');
+      fe.setAttribute('dx','0'); fe.setAttribute('dy', S.effects.glow ? '0' : '2');
+      fe.setAttribute('stdDeviation', S.effects.glow ? '3.5' : '1.2');
+      fe.setAttribute('flood-color', S.effects.glow ? S.colors.gradB : '#000000');
+      fe.setAttribute('flood-opacity', S.effects.glow ? '0.75' : '0.35');
+      flt.appendChild(fe);
+      defs.appendChild(flt);
+    }
+
+    svg.appendChild(defs);
+
+    // Background
+    if (!S.colors.transparentBg) {
+      const bgRect = document.createElementNS(svgNS,'rect');
+      bgRect.setAttribute('x','0'); bgRect.setAttribute('y','0');
+      bgRect.setAttribute('width', String(viewSize)); bgRect.setAttribute('height', String(viewSize));
+      bgRect.setAttribute('fill', S.colors.bg);
+      svg.appendChild(bgRect);
+    }
+
+    // Groups
+    const g = document.createElementNS(svgNS,'g');
+    if (S.effects.dropShadow || S.effects.glow) g.setAttribute('filter','url(#fx)');
+    const colorFill = S.colors.gradient ? 'url(#fgGrad)' : S.colors.fg;
+
+    // Draw modules
+    let paths = '';
+    for (let r=0;r<size;r++){
+      for (let c=0;c<size;c++){
+        if (matrix[r][c]===1 && !isInFinder(r,c,size)) {
+          paths += shapePathForModule(S.shape, c+pad, r+pad, matrix, S.customPath);
+        }
+      }
+    }
+    const inner = document.createElementNS(svgNS,'g');
+    inner.setAttribute('fill', colorFill);
+    inner.innerHTML = paths;
+    g.appendChild(inner);
+
+    // Draw finders
+    const eyeG = document.createElementNS(svgNS,'g');
+    eyeG.setAttribute('stroke','none');
+    const eyes = [
+      {x:pad, y:pad},
+      {x:pad+size-7, y:pad},
+      {x:pad, y:pad+size-7},
+    ];
+    for (const e of eyes) {
+      // outer
+      const outer = document.createElementNS(svgNS,'rect');
+      outer.setAttribute('x', e.x); outer.setAttribute('y', e.y);
+      outer.setAttribute('width','7'); outer.setAttribute('height','7'); outer.setAttribute('rx','1.4');
+      outer.setAttribute('fill', S.colors.eye);
+      // inner
+      const mid = document.createElementNS(svgNS,'rect');
+      mid.setAttribute('x', e.x+1); mid.setAttribute('y', e.y+1);
+      mid.setAttribute('width','5'); mid.setAttribute('height','5'); mid.setAttribute('rx','1');
+      mid.setAttribute('fill', S.colors.transparentBg ? (S.colors.bg || '#000000') : S.colors.bg);
+      // core
+      const core = document.createElementNS(svgNS,'rect');
+      core.setAttribute('x', e.x+2); core.setAttribute('y', e.y+2);
+      core.setAttribute('width','3'); core.setAttribute('height','3'); core.setAttribute('rx','0.6');
+      core.setAttribute('fill', S.colors.innerEye);
+      eyeG.appendChild(outer); eyeG.appendChild(mid); eyeG.appendChild(core);
+    }
+    g.appendChild(eyeG);
+
+    // Logo (as foreignObject image inside SVG)
+    if (S.logo.dataURL) {
+      const logoSizeModules = (size+pad*2) * (S.logo.sizePct/100);
+      const cx = viewSize/2 - logoSizeModules/2;
+      const cy = viewSize/2 - logoSizeModules/2;
+
+      const clipId = 'logoClip';
+      const clipPath = document.createElementNS(svgNS, 'clipPath'); clipPath.setAttribute('id', clipId);
+      const clipRect = document.createElementNS(svgNS, 'rect');
+      clipRect.setAttribute('x', cx); clipRect.setAttribute('y', cy);
+      clipRect.setAttribute('width', logoSizeModules); clipRect.setAttribute('height', logoSizeModules);
+      clipRect.setAttribute('rx', logoSizeModules * 0.2);
+      clipPath.appendChild(clipRect);
+      defs.appendChild(clipPath);
+
+      const img = document.createElementNS(svgNS, 'image');
+      img.setAttributeNS('http://www.w3.org/1999/xlink','href', S.logo.dataURL);
+      img.setAttribute('x', cx); img.setAttribute('y', cy);
+      img.setAttribute('width', logoSizeModules); img.setAttribute('height', logoSizeModules);
+      img.setAttribute('clip-path', `url(#${clipId})`);
+      g.appendChild(img);
+    }
+
+    svg.appendChild(g);
+
+    // Inject
+    previewWrap.innerHTML = '';
+    previewWrap.appendChild(svg);
+
+    // Zoom/Pan apply
+    applyZoomPan();
+    updateEmbed();
+    status('Preview updated');
+  }
+
+  // Zoom & Pan
+  function applyZoomPan() {
+    const svg = previewWrap.querySelector('svg');
+    if (!svg) return;
+    const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+    let [x,y,w,h] = vb;
+    const scale = S.zoom;
+    const cx = w/2, cy = h/2;
+    const nw = w/scale, nh = h/scale;
+    const px = clamp(cx - nw/2 + S.pan.x, 0, w - nw);
+    const py = clamp(cy - nh/2 + S.pan.y, 0, h - nh);
+    svg.setAttribute('viewBox', `${px} ${py} ${nw} ${nh}`);
+    zoomLabel.textContent = Math.round(scale*100)+'%';
+  }
+
+  // Export
+  async function download() {
+    const format = dlFormat.value;
+    const scale = parseInt(dlScale.value, 10);
+    const svg = previewWrap.querySelector('svg');
+    if (!svg) return;
+    if (format === 'svg') {
+      const data = new XMLSerializer().serializeToString(svg);
+      triggerDownload('qr.svg', 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(data));
+      return;
+    }
+    // Render to canvas first
+    const dataURL = asDataURL(svg);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = async () => {
+      const w = img.width * scale;
+      const h = img.height * scale;
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, w, h);
+      if (format === 'png') {
+        triggerDownload('qr.png', canvas.toDataURL('image/png'));
+      } else if (format === 'pdf') {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: w>h?'l':'p', unit: 'pt', format: [w, h] });
+        const pngData = canvas.toDataURL('image/png');
+        pdf.addImage(pngData, 'PNG', 0, 0, w, h);
+        pdf.save('qr.pdf');
+      }
+    };
+    img.onerror = () => alert('Image rendering failed. Try different settings.');
+    img.src = dataURL;
+  }
+
+  function triggerDownload(name, url) {
+    const a = document.createElement('a');
+    a.download = name;
+    a.href = url;
+    a.rel = 'noopener noreferrer';
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function showModal(el) { el.classList.remove('hidden'); el.classList.add('flex'); }
+  function hideModal(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
+
+  // Projects
+  function getProjects() {
+    return JSON.parse(localStorage.getItem(LS.PROJECTS) || '[]');
+  }
+  function saveProject(name) {
+    if (!name) return alert('Please enter a project name.');
+    const all = getProjects().filter(p => p.name !== name);
+    all.push({ name, data: JSON.parse(JSON.stringify(S)) });
+    localStorage.setItem(LS.PROJECTS, JSON.stringify(all));
+    refreshProjects();
+    status('Project saved');
+  }
+  function loadProject(name) {
+    const p = getProjects().find(p => p.name === name);
+    if (!p) return;
+    // Preserve tracking clicks map, theme, dynamic map
+    const keepTheme = S.theme;
+    Object.assign(S, JSON.parse(JSON.stringify(p.data)));
+    S.theme = keepTheme;
+    hydrateUI();
+    render();
+    status('Project loaded');
+  }
+  function deleteProject(name) {
+    const all = getProjects().filter(p => p.name !== name);
+    localStorage.setItem(LS.PROJECTS, JSON.stringify(all));
+    refreshProjects();
+    status('Project deleted');
+  }
+  function refreshProjects() {
+    const all = getProjects().sort((a,b)=>a.name.localeCompare(b.name));
+    projectsSelect.innerHTML = all.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+  }
+  function hydrateUI() {
+    qrText.value = S.text;
+    fgColor.value = S.colors.fg; bgColor.value = S.colors.bg;
+    eyeColor.value = S.colors.eye; innerEyeColor.value = S.colors.innerEye;
+    useGradient.checked = S.colors.gradient; gradientWrap.classList.toggle('hidden', !S.colors.gradient);
+    gradA.value = S.colors.gradA; gradB.value = S.colors.gradB;
+    bgTransparent.checked = S.colors.transparentBg;
+    qrOpacity.value = Math.round(S.effects.opacity*100); qrOpacityVal.textContent = String(Math.round(S.effects.opacity*100));
+    qrRadius.value = S.effects.radius; qrRadiusVal.textContent = String(S.effects.radius);
+    dropShadow.checked = S.effects.dropShadow; glow.checked = S.effects.glow;
+    logoSize.value = S.logo.sizePct; logoSizeVal.textContent = String(S.logo.sizePct);
+  }
+
+  // Presets
+  function applyPreset(id) {
+    // Define palettes per preset and apply to state
+    if (id === 'neon') {
+      // Neon: high contrast with violet & cyan accents
+      S.shape = 'circle';
+      S.colors.gradient = true;
+      S.colors.gradA = '#a78bfa'; // violet
+      S.colors.gradB = '#06b6d4'; // light blue / cyan
+      S.colors.fg = '#ffffff';    // white foreground for modules
+      S.colors.bg = '#000000';    // black background
+      S.colors.eye = '#7c3aed';   // violet for eyes
+      S.colors.innerEye = '#06b6d4';
+      S.effects.glow = true; S.effects.dropShadow = false; S.effects.radius = 16;
+    } else if (id === 'pastel') {
+      // Pastel: soft colors
+      S.shape = 'rounded';
+      S.colors.gradient = false;
+      S.colors.fg = '#374151';   // slate for foreground
+      S.colors.bg = '#f5f3ff';   // very light purple background
+      S.colors.eye = '#a78bfa';  // soft violet
+      S.colors.innerEye = '#f472b6';
+      S.effects.glow = false; S.effects.dropShadow = false; S.effects.radius = 12;
+    } else if (id === 'mono') {
+      // Mono: clean black & white
+      S.shape = 'square';
+      S.colors.gradient = false;
+      S.colors.fg = '#111827';   // dark gray modules
+      S.colors.bg = '#ffffff';   // white background
+      S.colors.eye = '#111827';
+      S.colors.innerEye = '#111827';
+      S.effects.glow = false; S.effects.dropShadow = false; S.effects.radius = 8;
+    }
+
+    // Update UI inputs to reflect new S values and re-render
+    hydrateUI();
+    render();
+  }
+
+  // Share / Embed
+  function updateEmbed() {
+    const svg = previewWrap.querySelector('svg');
+    if (!svg) return;
+    const data = new XMLSerializer().serializeToString(svg);
+    const b64 = btoa(unescape(encodeURIComponent(data)));
+    const imgSrc = `data:image/svg+xml;base64,${b64}`;
+    const code = `<img src="${imgSrc}" alt="QR code" style="max-width:100%;height:auto;" onerror="this.src=''; this.alt='Image failed to load'; this.style.display='none';">`;
+    embedOut.value = code;
+  }
+
+  function shareTo(platform) {
+    const urlEnc = encodeURIComponent(S.text);
+    if (platform==='wa') {
+      window.open(`https://wa.me/?text=${urlEnc}`,'_blank');
+    } else if (platform==='email') {
+      window.open(`mailto:?subject=QR%20Link&body=${urlEnc}`,'_blank');
+    } else {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${urlEnc}`,'_blank');
+    }
+  }
+
+  // Events
+  $('#contentForm').addEventListener('submit', e => e.preventDefault());
+  qrText.addEventListener('input', () => { S.text = qrText.value.trim(); render(); });
+
+  logoFile.addEventListener('change', () => {
+    const f = logoFile.files && logoFile.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = e => { S.logo.dataURL = e.target.result; render(); };
+    reader.readAsDataURL(f);
+  });
+  clearLogo.addEventListener('click', e => { e.preventDefault(); S.logo.dataURL=''; logoFile.value=''; render(); });
+  logoSize.addEventListener('input', () => { S.logo.sizePct = parseInt(logoSize.value,10); logoSizeVal.textContent = String(S.logo.sizePct); render(); });
+
+  $$('.shape-btn').forEach(b => {
+    b.addEventListener('click', e => {
+      e.preventDefault();
+      S.shape = b.dataset.shape;
+      $$('.shape-btn').forEach(x => x.classList.remove('ring-2','ring-violet-400'));
+      b.classList.add('ring-2','ring-violet-400');
+      $('#customPathWrap').classList.toggle('hidden', S.shape!=='custom');
+      render();
+    });
+  });
+  $('#customPath').addEventListener('input', () => { S.customPath = $('#customPath').value.trim(); render(); });
+
+  fgColor.addEventListener('change', ()=>{ S.colors.fg=fgColor.value; render(); });
+  bgColor.addEventListener('change', ()=>{ S.colors.bg=bgColor.value; render(); });
+  eyeColor.addEventListener('change', ()=>{ S.colors.eye=eyeColor.value; render(); });
+  innerEyeColor.addEventListener('change', ()=>{ S.colors.innerEye=innerEyeColor.value; render(); });
+  bgTransparent.addEventListener('change', ()=>{ S.colors.transparentBg=bgTransparent.checked; render(); });
+
+  useGradient.addEventListener('change', ()=>{
+    S.colors.gradient = useGradient.checked;
+    gradientWrap.classList.toggle('hidden', !S.colors.gradient);
+    render();
+  });
+  gradA.addEventListener('change', ()=>{ S.colors.gradA=gradA.value; render(); });
+  gradB.addEventListener('change', ()=>{ S.colors.gradB=gradB.value; render(); });
+
+  qrOpacity.addEventListener('input', ()=>{
+    const v = parseInt(qrOpacity.value,10); qrOpacityVal.textContent=String(v);
+    S.effects.opacity = v/100; render();
+  });
+  qrRadius.addEventListener('input', ()=>{
+    S.effects.radius = parseInt(qrRadius.value,10); qrRadiusVal.textContent=String(S.effects.radius); render();
+  });
+  dropShadow.addEventListener('change', ()=>{ S.effects.dropShadow = dropShadow.checked; render(); });
+  glow.addEventListener('change', ()=>{ S.effects.glow = glow.checked; render(); });
+
+  // Zoom/Pan interactions
+  zoomIn.addEventListener('click', e => { e.preventDefault(); S.zoom = clamp(S.zoom+0.1, 0.5, 3); applyZoomPan(); });
+  zoomOut.addEventListener('click', e => { e.preventDefault(); S.zoom = clamp(S.zoom-0.1, 0.5, 3); applyZoomPan(); });
+
+  let panStart = null;
+  previewWrap.addEventListener('pointerdown', e => {
+    panStart = { x:e.clientX, y:e.clientY, sx:S.pan.x, sy:S.pan.y };
+    previewWrap.setPointerCapture(e.pointerId);
+  });
+  previewWrap.addEventListener('pointermove', e => {
+    if (!panStart) return;
+    const dx = (e.clientX - panStart.x)/60;
+    const dy = (e.clientY - panStart.y)/60;
+    S.pan.x = panStart.sx - dx; S.pan.y = panStart.sy - dy;
+    applyZoomPan();
+  });
+  previewWrap.addEventListener('pointerup', e => { panStart=null; previewWrap.releasePointerCapture(e.pointerId); });
+
+  // Download
+  downloadBtn.addEventListener('click', async e => {
+    e.preventDefault();
+    download();
+  });
+
+  // Projects: attach handlers only if the elements exist
+  if (saveProjectBtn) {
+    saveProjectBtn.addEventListener('click', e => { e.preventDefault(); saveProject((projectName && projectName.value) ? projectName.value.trim() : ''); });
+  }
+  if (loadProjectBtn && projectsSelect) {
+    loadProjectBtn.addEventListener('click', e => { e.preventDefault(); const name = projectsSelect.value; if (name) loadProject(name); });
+  }
+  if (deleteProjectBtn && projectsSelect) {
+    deleteProjectBtn.addEventListener('click', e => { e.preventDefault(); const name = projectsSelect.value; if (name && confirm('Delete this project?')) deleteProject(name); });
+  }
+
+  // Presets
+  presetBtns.forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); applyPreset(btn.dataset.preset); }));
+
+  // Share
+  shareWhatsApp.addEventListener('click', e => { e.preventDefault(); shareTo('wa'); });
+  shareEmail.addEventListener('click', e => { e.preventDefault(); shareTo('email'); });
+  shareSocial.addEventListener('click', e => { e.preventDefault(); shareTo('social'); });
+  copyEmbed.addEventListener('click', e => {
+    e.preventDefault();
+    navigator.clipboard.writeText(embedOut.value||'').then(()=> status('Embed code copied'));
+  });
+
+  // Feedback
+  let ratingVal = 0;
+  $$('.star').forEach((s, i) => {
+    s.addEventListener('click', e => {
+      e.preventDefault();
+      ratingVal = i+1;
+      $$('.star').forEach((k, idx)=> k.textContent = idx < ratingVal ? '⭐' : '☆');
+    });
+  });
+  sendFeedback.addEventListener('click', e => {
+    e.preventDefault();
+    const list = JSON.parse(localStorage.getItem(LS.FEEDBACK) || '[]');
+    list.push({ rating: ratingVal, text: feedback.value, date: new Date().toISOString() });
+    localStorage.setItem(LS.FEEDBACK, JSON.stringify(list));
+    feedback.value = ''; ratingVal = 0; $$('.star').forEach(k=>k.textContent='☆');
+    feedbackMsg.textContent = 'Thanks for your feedback!';
+  });
+
+  // Upgrade modal
+  upgradeBtn.addEventListener('click', e => { e.preventDefault(); showModal(upgradeModal); });
+  upgradeClose.addEventListener('click', e => { e.preventDefault(); hideModal(upgradeModal); });
+
+  // Onboarding modal
+  onboardOk.addEventListener('click', e => { e.preventDefault(); hideModal(onboardModal); localStorage.setItem(LS.ONBOARDED,'1'); });
+
+  // Theme toggles
+  themeToggle.addEventListener('change', ()=>{
+    // checked = light
+    S.theme.dark = !themeToggle.checked;
+    applyTheme();
+  });
+  hcToggle.addEventListener('change', ()=>{
+    S.theme.highContrast = hcToggle.checked;
+    applyTheme();
+  });
+
+  // Accessibility: keyboard navigation for shape buttons
+  $$('.shape-btn').forEach((b, idx, arr) => {
+    b.setAttribute('tabindex','0');
+    b.addEventListener('keydown', (e)=> {
+      if (e.key==='ArrowRight') { e.preventDefault(); arr[(idx+1)%arr.length].focus(); }
+      if (e.key==='ArrowLeft') { e.preventDefault(); arr[(idx-1+arr.length)%arr.length].focus(); }
+      if (e.key==='Enter' || e.key===' ') { e.preventDefault(); b.click(); }
+    });
+  });
+
+  // Validation
+  qrText.addEventListener('blur', ()=>{
+    if (!qrText.value.trim()) {
+      qrText.setAttribute('aria-invalid','true');
+      qrText.classList.add('ring-2','ring-rose-400');
+    } else {
+      qrText.removeAttribute('aria-invalid');
+      qrText.classList.remove('ring-2','ring-rose-400');
+    }
+  });
+
+  // Ensure analytics access gated if required
+  // Periodically gate analytics UI only if verification state and element exist
+  setInterval(()=>{
+    const tb = document.getElementById('trackBtn');
+    if (S.verification && S.verification.emailRequired && !S.verification.verified) {
+      if (tb) { tb.disabled = true; tb.classList.add('opacity-60','cursor-not-allowed'); }
+    } else {
+      if (tb) { tb.disabled = false; tb.classList.remove('opacity-60','cursor-not-allowed'); }
+    }
+  }, 500);
+
+  // Kickstart
+  window.addEventListener('load', init);
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981e6c1672c1936e',t:'MTc1ODM0MDg5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
